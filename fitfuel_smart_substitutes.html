@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitFuel - البدائل الذكية للأنظمة الغذائية</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Cairo -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 min-h-screen text-slate-100 flex flex-col items-center justify-between p-4 sm:p-6">
+
+    <header class="w-full max-w-2xl text-center my-4">
+        <div class="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 px-4 py-1.5 rounded-full text-emerald-400 text-sm font-semibold mb-3 shadow-inner">
+            <i class="fa-solid fa-bolt text-emerald-400"></i> نظام الحساب الذكي المعتمد على البروتينات والسعرات
+        </div>
+        <h1 class="text-3xl sm:text-4xl font-black tracking-tight text-white mb-2">FitFuel <span class="text-emerald-400">البدائل الذكية</span></h1>
+        <p class="text-slate-400 text-sm sm:text-base">استبدل أي طعام في نظامك الغذائي بكل سهولة مع الحفاظ على القيمة الغذائية بدقة</p>
+    </header>
+
+    <main class="w-full max-w-md bg-slate-800/90 border border-slate-700/80 rounded-3xl shadow-2xl p-5 sm:p-6 mb-6 backdrop-blur-md relative overflow-hidden">
+        
+        <!-- Navigation Tabs -->
+        <div class="flex bg-slate-900/80 p-1 rounded-2xl mb-6 border border-slate-700">
+            <button onclick="switchTab('calculator')" id="tab-calculator" class="flex-1 py-2 text-sm font-bold rounded-xl bg-emerald-600 text-white transition-all shadow-md">
+                <i class="fa-solid fa-calculator ml-1.5"></i> الحاسبة
+            </button>
+            <button onclick="switchTab('database')" id="tab-database" class="flex-1 py-2 text-sm font-bold rounded-xl text-slate-400 hover:text-white transition-all">
+                <i class="fa-solid fa-database ml-1.5"></i> الجدول والنسب (<span id="items-count">0</span>)
+            </button>
+        </div>
+
+        <!-- TAB 1: CALCULATOR -->
+        <div id="view-calculator" class="space-y-5">
+            
+            <!-- Base Food Selection -->
+            <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-700/60">
+                <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">
+                    <i class="fa-solid fa-utensils text-emerald-400 ml-1"></i> الوجبة الأساسية (المراد تبديلها)
+                </label>
+                <div class="relative">
+                    <select id="base-food" onchange="calculateSubstitution()" class="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none appearance-none cursor-pointer">
+                        <!-- Populated by JS -->
+                    </select>
+                    <div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quantity Input & Swap Icon -->
+            <div class="grid grid-cols-1 gap-4 items-center">
+                <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-700/60">
+                    <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">
+                        <i class="fa-solid fa-scale-balanced text-emerald-400 ml-1"></i> الكمية الأساسية (بالجرام)
+                    </label>
+                    <div class="flex items-center gap-3">
+                        <input type="number" id="base-qty" value="100" min="1" max="2000" oninput="calculateSubstitution()" class="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white font-bold text-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none text-center">
+                        <span class="text-slate-400 font-bold">جرام</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Swap Arrow Divider -->
+            <div class="flex justify-center -my-2 relative z-10">
+                <div class="bg-emerald-600 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg border-2 border-slate-800">
+                    <i class="fa-solid fa-arrow-right-arrow-left rotate-90 sm:rotate-0"></i>
+                </div>
+            </div>
+
+            <!-- Substitute Food Selection -->
+            <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-700/60">
+                <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">
+                    <i class="fa-solid fa-shuffle text-emerald-400 ml-1"></i> تبديل بـ (البديل المقترح)
+                </label>
+                <div class="relative">
+                    <select id="sub-food" onchange="calculateSubstitution()" class="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none appearance-none cursor-pointer">
+                        <!-- Populated by JS -->
+                    </select>
+                    <div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Match Mode Selector -->
+            <div class="flex items-center justify-between bg-slate-900/40 px-4 py-2.5 rounded-xl border border-slate-700/40 text-xs">
+                <span class="text-slate-300 font-medium"><i class="fa-solid fa-sliders text-emerald-400 ml-1"></i> التبديل بناءً على:</span>
+                <div class="flex gap-2">
+                    <button onclick="setMatchMode('protein')" id="mode-protein" class="px-3 py-1 rounded-lg bg-emerald-600 text-white font-bold transition-all">البروتين الأساسي</button>
+                    <button onclick="setMatchMode('calories')" id="mode-calories" class="px-3 py-1 rounded-lg bg-slate-800 text-slate-400 font-bold transition-all">السعرات الحرارية</button>
+                </div>
+            </div>
+
+            <!-- Result Box -->
+            <div class="bg-gradient-to-br from-emerald-950/80 to-slate-900 border-2 border-emerald-500/60 rounded-2xl p-5 text-center shadow-xl">
+                <div class="text-xs text-emerald-400 font-bold uppercase tracking-wider mb-1">النتيجة والكمية المكافئة بدقة</div>
+                <div class="text-3xl sm:text-4xl font-black text-white my-2">
+                    <span id="result-qty" class="text-emerald-400">0</span> <span class="text-lg font-bold text-slate-300">جرام</span>
+                </div>
+                <div id="result-desc" class="text-xs text-slate-300 font-medium bg-emerald-900/30 py-1.5 px-3 rounded-lg inline-block border border-emerald-500/20">
+                    تعادل الكمية المطلوبة بدقة تامة
+                </div>
+
+                <!-- Macro Comparison breakdown -->
+                <div class="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-emerald-500/20 text-xs">
+                    <div class="bg-slate-900/60 p-2 rounded-xl">
+                        <div class="text-slate-400">البروتين</div>
+                        <div id="res-protein" class="font-bold text-emerald-400 text-sm">0 جم</div>
+                    </div>
+                    <div class="bg-slate-900/60 p-2 rounded-xl">
+                        <div class="text-slate-400">السعرات</div>
+                        <div id="res-calories" class="font-bold text-amber-400 text-sm">0 سعرة</div>
+                    </div>
+                    <div class="bg-slate-900/60 p-2 rounded-xl">
+                        <div class="text-slate-400">الكربوهيدرات</div>
+                        <div id="res-carbs" class="font-bold text-blue-400 text-sm">0 جم</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Action Buttons -->
+            <div class="flex gap-3">
+                <button onclick="swapItems()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md flex items-center justify-center gap-2 text-sm">
+                    <i class="fa-solid fa-arrows-rotate"></i> عكس الأماكن
+                </button>
+                <button onclick="copyResult()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md flex items-center justify-center gap-2 text-sm">
+                    <i class="fa-solid fa-copy"></i> نسخ النتيجة
+                </button>
+            </div>
+        </div>
+
+        <!-- TAB 2: DATABASE & RATIOS -->
+        <div id="view-database" class="hidden space-y-4">
+            <div class="relative">
+                <input type="text" id="search-input" oninput="filterDatabase()" placeholder="ابحث عن طعام..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 pr-10 text-sm text-white focus:outline-none focus:border-emerald-500">
+                <i class="fa-solid fa-search absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            </div>
+            
+            <p class="text-xs text-slate-400">القيم الغذائية التالية محسوبة لكل <span class="text-emerald-400 font-bold">100 جرام</span> من الصنف المطبوخ أو الجاهز للاستخدام:</p>
+
+            <div id="database-list" class="space-y-2.5 max-h-[380px] overflow-y-auto pr-1">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="w-full max-w-2xl text-center text-xs text-slate-500 pb-2">
+        <p>FitFuel Smart Diet Substitutes &copy; 2026 - جاهز للرفع والتشغيل على Vercel</p>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-emerald-600 text-white px-5 py-2.5 rounded-xl shadow-2xl text-sm font-bold opacity-0 transition-opacity duration-300 pointer-events-none z-50">
+        تم نسخ النتيجة بنجاح!
+    </div>
+
+    <script>
+        // Comprehensive Database of 20+ Diet Items with exact nutritional values per 100g
+        const foodDatabase = [
+            { id: 1, name: "صدور دجاج مخلية (مطهية)", category: "protein", protein: 31.0, fat: 3.6, carbs: 0.0, calories: 165, icon: "fa-drumstick-bite" },
+            { id: 2, name: "لحم عجل قليل الدهون (مطهي)", category: "protein", protein: 26.0, fat: 8.0, carbs: 0.0, calories: 180, icon: "fa-bacon" },
+            { id: 3, name: "جبنة قريش", category: "dairy", protein: 12.0, fat: 4.0, carbs: 3.4, calories: 98, icon: "fa-cheese" },
+            { id: 4, name: "بيضة كاملة مسلوقة", category: "protein", protein: 13.0, fat: 11.0, carbs: 1.1, calories: 155, icon: "fa-egg" },
+            { id: 5, name: "بياض بيض مسلوق", category: "protein", protein: 11.0, fat: 0.2, carbs: 0.7, calories: 52, icon: "fa-egg" },
+            { id: 6, name: "تونة مصفاة في الماء", category: "protein", protein: 26.0, fat: 1.0, carbs: 0.0, calories: 116, icon: "fa-fish" },
+            { id: 7, name: "سمك فيليه أبيض (بلطي/قشر بياض)", category: "protein", protein: 20.0, fat: 1.7, carbs: 0.0, calories: 96, icon: "fa-fish-fins" },
+            { id: 8, name: "سمك سالمون مشوي", category: "protein", protein: 20.0, fat: 13.0, carbs: 0.0, calories: 206, icon: "fa-fish" },
+            { id: 9, name: "أرز أبيض مطبوخ", category: "carbs", protein: 2.7, fat: 0.3, carbs: 28.0, calories: 130, icon: "fa-bowl-rice" },
+            { id: 10, name: "أرز بسمتي مطبوخ", category: "carbs", protein: 3.5, fat: 0.4, carbs: 25.0, calories: 121, icon: "fa-bowl-rice" },
+            { id: 11, name: "بطاطس مسلوقة أو مشوية", category: "carbs", protein: 2.0, fat: 0.1, carbs: 17.0, calories: 87, icon: "fa-carrot" },
+            { id: 12, name: "بطاطا حلوة مشوية", category: "carbs", protein: 1.6, fat: 0.1, carbs: 20.0, calories: 86, icon: "fa-seedling" },
+            { id: 13, name: "شوفان جاف", category: "carbs", protein: 13.5, fat: 7.0, carbs: 67.0, calories: 389, icon: "fa-wheat-awn" },
+            { id: 14, name: "خبز بلدي / أسمر", category: "carbs", protein: 9.0, fat: 2.0, carbs: 45.0, calories: 245, icon: "fa-bread-slice" },
+            { id: 15, name: "عدس مسلوق", category: "carbs", protein: 9.0, fat: 0.4, carbs: 20.0, calories: 116, icon: "fa-bowl-food" },
+            { id: 16, name: "حمص مسلوق", category: "carbs", protein: 9.0, fat: 2.6, carbs: 27.0, calories: 164, icon: "fa-bowl-food" },
+            { id: 17, name: "فول مدمس", category: "carbs", protein: 7.6, fat: 0.4, carbs: 15.0, calories: 88, icon: "fa-bowl-food" },
+            { id: 18, name: "زبادي يوناني قليل الدسم", category: "dairy", protein: 10.0, fat: 0.4, carbs: 3.6, calories: 59, icon: "fa-cup-hot" },
+            { id: 19, name: "مكرونة مطبوخة", category: "carbs", protein: 5.0, fat: 1.1, carbs: 25.0, calories: 131, icon: "fa-plate-wheat" },
+            { id: 20, name: "زبدة فول سوداني", category: "fats", protein: 25.0, fat: 50.0, carbs: 20.0, calories: 588, icon: "fa-jar" },
+            { id: 21, name: "موز (فاكهة)", category: "fruits", protein: 1.1, fat: 0.3, carbs: 23.0, calories: 89, icon: "fa-apple-whole" }
+        ];
+
+        let currentMatchMode = 'protein'; // 'protein' or 'calories'
+
+        // Initialize App
+        function initApp() {
+            document.getElementById('items-count').innerText = foodDatabase.length;
+            
+            const baseSelect = document.getElementById('base-food');
+            const subSelect = document.getElementById('sub-food');
+            
+            baseSelect.innerHTML = '';
+            subSelect.innerHTML = '';
+
+            foodDatabase.forEach((item, index) => {
+                const opt1 = document.createElement('option');
+                opt1.value = item.id;
+                opt1.textContent = item.name;
+                baseSelect.appendChild(opt1);
+
+                const opt2 = document.createElement('option');
+                opt2.value = item.id;
+                opt2.textContent = item.name;
+                subSelect.appendChild(opt2);
+            });
+
+            // Set default selections (Item 0: Chicken, Item 1: Beef or Item 8: Rice)
+            if (foodDatabase.length > 1) {
+                baseSelect.value = foodDatabase[0].id;
+                subSelect.value = foodDatabase[1].id;
+            }
+
+            renderDatabaseList(foodDatabase);
+            calculateSubstitution();
+        }
+
+        function switchTab(tab) {
+            const calcView = document.getElementById('view-calculator');
+            const dbView = document.getElementById('view-database');
+            const tabCalc = document.getElementById('tab-calculator');
+            const tabDb = document.getElementById('tab-database');
+
+            if (tab === 'calculator') {
+                calcView.classList.remove('hidden');
+                dbView.classList.add('hidden');
+                tabCalc.className = "flex-1 py-2 text-sm font-bold rounded-xl bg-emerald-600 text-white transition-all shadow-md";
+                tabDb.className = "flex-1 py-2 text-sm font-bold rounded-xl text-slate-400 hover:text-white transition-all";
+            } else {
+                calcView.classList.add('hidden');
+                dbView.classList.remove('hidden');
+                tabDb.className = "flex-1 py-2 text-sm font-bold rounded-xl bg-emerald-600 text-white transition-all shadow-md";
+                tabCalc.className = "flex-1 py-2 text-sm font-bold rounded-xl text-slate-400 hover:text-white transition-all";
+            }
+        }
+
+        function setMatchMode(mode) {
+            currentMatchMode = mode;
+            const btnProtein = document.getElementById('mode-protein');
+            const btnCalories = document.getElementById('mode-calories');
+
+            if (mode === 'protein') {
+                btnProtein.className = "px-3 py-1 rounded-lg bg-emerald-600 text-white font-bold transition-all";
+                btnCalories.className = "px-3 py-1 rounded-lg bg-slate-800 text-slate-400 font-bold transition-all";
+            } else {
+                btnCalories.className = "px-3 py-1 rounded-lg bg-emerald-600 text-white font-bold transition-all";
+                btnProtein.className = "px-3 py-1 rounded-lg bg-slate-800 text-slate-400 font-bold transition-all";
+            }
+            calculateSubstitution();
+        }
+
+        function calculateSubstitution() {
+            const baseId = parseInt(document.getElementById('base-food').value);
+            const subId = parseInt(document.getElementById('sub-food').value);
+            const baseQty = parseFloat(document.getElementById('base-qty').value) || 0;
+
+            const baseItem = foodDatabase.find(f => f.id === baseId);
+            const subItem = foodDatabase.find(f => f.id === subId);
+
+            if (!baseItem || !subItem) return;
+
+            let resultGrams = 0;
+
+            if (currentMatchMode === 'protein') {
+                // Match based on Protein content
+                const totalProteinNeeded = (baseQty / 100) * baseItem.protein;
+                if (subItem.protein > 0) {
+                    resultGrams = (totalProteinNeeded / subItem.protein) * 100;
+                }
+            } else {
+                // Match based on Calories
+                const totalCaloriesNeeded = (baseQty / 100) * baseItem.calories;
+                if (subItem.calories > 0) {
+                    resultGrams = (totalCaloriesNeeded / subItem.calories) * 100;
+                }
+            }
+
+            resultGrams = Math.round(resultGrams * 10) / 10;
+
+            document.getElementById('result-qty').innerText = resultGrams;
+            document.getElementById('result-desc').innerText = `${resultGrams} جرام من (${subItem.name}) تعادل ${baseQty} جرام من (${baseItem.name}) بناءً على ${currentMatchMode === 'protein' ? 'نسبة البروتين' : 'السعرات الحرارية'}`;
+
+            // Calculate macros for the resulting quantity
+            const finalProtein = ((resultGrams / 100) * subItem.protein).toFixed(1);
+            const finalCalories = Math.round((resultGrams / 100) * subItem.calories);
+            const finalCarbs = ((resultGrams / 100) * subItem.carbs).toFixed(1);
+
+            document.getElementById('res-protein').innerText = finalProtein + ' جم';
+            document.getElementById('res-calories').innerText = finalCalories + ' سعرة';
+            document.getElementById('res-carbs').innerText = finalCarbs + ' جم';
+        }
+
+        function swapItems() {
+            const baseSelect = document.getElementById('base-food');
+            const subSelect = document.getElementById('sub-food');
+            
+            const temp = baseSelect.value;
+            baseSelect.value = subSelect.value;
+            subSelect.value = temp;
+
+            calculateSubstitution();
+        }
+
+        function copyResult() {
+            const qty = document.getElementById('result-qty').innerText;
+            const baseFoodText = document.getElementById('base-food').selectedOptions[0].text;
+            const subFoodText = document.getElementById('sub-food').selectedOptions[0].text;
+            const baseQty = document.getElementById('base-qty').value;
+
+            const textToCopy = `بديل ذكي من FitFuel:\n${qty} جرام من ${subFoodText} تعادل ${baseQty} جرام من ${baseFoodText}`;
+            
+            const textArea = document.createElement("textarea");
+            textArea.value = textToCopy;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textArea);
+
+            const toast = document.getElementById('toast');
+            toast.style.opacity = '1';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+            }, 2000);
+        }
+
+        function renderDatabaseList(items) {
+            const container = document.getElementById('database-list');
+            container.innerHTML = '';
+
+            items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "bg-slate-900/60 border border-slate-700/60 p-3 rounded-xl flex items-center justify-between";
+                card.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+                            <i class="fa-solid ${item.icon}"></i>
+                        </div>
+                        <div>
+                            <div class="text-sm font-bold text-white">${item.name}</div>
+                            <div class="text-xs text-slate-400">بروتين: <span class="text-emerald-400 font-semibold">${item.protein}ج</span> | سعرات: <span class="text-amber-400 font-semibold">${item.calories}</span></div>
+                        </div>
+                    </div>
+                    <div class="text-left text-xs text-slate-400 bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700">
+                        لـ 100 جرام
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterDatabase() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const filtered = foodDatabase.filter(item => item.name.toLowerCase().includes(query));
+            renderDatabaseList(filtered);
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
